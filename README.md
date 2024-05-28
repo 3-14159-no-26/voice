@@ -17,3 +17,5 @@ pip freeze > requirements.txt
 ```bash
 pip install -r requirements.txt
 ```
+
+成員名單
