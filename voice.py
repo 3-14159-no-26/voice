@@ -9,10 +9,11 @@ import gc
 import json
 from dotenv import load_dotenv
 
-def def_play_wav(filename):
+def fun_play_wav(filename):
     print("播放音檔")
     chunk = 1024
-    wf = wave.open(filename, 'rb')
+    audio_path = os.path.join(f"{current_directory}\\assets", filename)
+    wf = wave.open(audio_path, 'rb')
     p = pyaudio.PyAudio()
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                     channels=wf.getnchannels(),
@@ -26,7 +27,7 @@ def def_play_wav(filename):
     stream.close()
     p.terminate()
     
-def def_record(sec: int):
+def fun_record(sec: int):
     chunk = 1024                     # 記錄聲音的樣本區塊大小
     sample_format = pyaudio.paInt16 # 樣本格式，可使用 paFloat32、paInt32、paInt24、paInt16、paInt8、paUInt8、paCustomFormat
     channels = 1                     # 聲道數量
@@ -34,10 +35,12 @@ def def_record(sec: int):
     seconds = sec                    # 錄音秒數
     filename = "whisperX.wav"            # 錄音檔名
     p = pyaudio.PyAudio()            # 建立 pyaudio 物件
+    # 播放提示音
+    fun_play_wav("提示音.wav")
     print("開始錄音...")
     stream = p.open(format=sample_format, channels=channels,rate=fs, frames_per_buffer=chunk, input=True)
     frames = []                      # 建立聲音串列
-    for i in range(0, int(fs / chunk * seconds)):
+    for _ in range(0, int(fs / chunk * seconds)):
         data = stream.read(chunk)
         frames.append(data)          
     stream.stop_stream()             # 將聲音記錄到串列中
@@ -51,19 +54,18 @@ def def_record(sec: int):
     wf.writeframes(b''.join(frames))  # 存檔
     wf.close()
 
-def def_whisperX():
+def fun_whisperX():
     print("執行 WhisperX")
     print("辨識中...")
-    current_directory = os.path.dirname(os.path.abspath(__file__))
     audio_path = os.path.join(current_directory, "whisperX.wav")
     result = modelx.transcribe(audio_path)
-    print(f' 辨識: \n {result["segments"][0]["text"]}')
+    print(f"辨識: \n {result['segments'][0]['text']}")
     return result["segments"][0]["text"]
 
-def def_llm(messages):
+def fun_llm(messages):
     print("執行 LLM")
     # 讀取 prompt.txt 檔案
-    with open("prompt.txt", "r", encoding="utf-8") as f:
+    with open(f"{current_directory}\\assets\\prompt.txt", "r", encoding="utf-8") as f:
         prompt = f.read()
     history = [
         {
@@ -78,7 +80,7 @@ def def_llm(messages):
     print(completion.choices[0].message.content)
     return completion.choices[0].message.content
 
-def def_tts(text):
+def fun_tts(text):
     print("執行 TTS")
     refer_wav_path = tts_path
     prompt_text = tts_text
@@ -89,6 +91,17 @@ def def_tts(text):
     # response輸出為音檔
     with open("SoVITS_LLM.wav", "wb") as f:
         f.write(response.content)
+
+def fun_irremote(value):
+    print("執行 IR Remote")
+    irremote_url = f"{web_api}/irremote"
+    log_url = f"{web_api}/log"
+    body = json.dumps(value)
+    headers = {"Content-Type": "application/json"}
+    irremote_res = requests.post(irremote_url, headers=headers, data=body)
+    log_res = requests.post(log_url, headers=headers, data=body)
+    print(irremote_res.text)
+    print(log_res.text)
 
 if __name__ == '__main__':
     try:
@@ -103,35 +116,34 @@ if __name__ == '__main__':
         tts_path = os.getenv("TTS_PATH")
         tts_text = os.getenv("TTS_TEXT")
 
+        # 取得當前目錄
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+
         # 初始化 LLM
         client = OpenAI(base_url=groq_api_url, api_key=groq_api_key)
         # 載入模型 (WhisperX)
-        if torch.cuda.is_available():
-            device = "cuda"
-            modelx = whisperx.load_model(wihisperx_model, device)
-        else:
-            device = "cpu"
-            modelx = whisperx.load_model(wihisperx_model, device,compute_type="int8")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        modelx = whisperx.load_model(wihisperx_model, device, compute_type="int8" if device == "cpu" else None)
 
         while True:
             try:
                 # 呼叫 def_record() 錄音
-                def_record(3)
+                fun_record(3)
                 # 呼叫 def_whisperX() 辨識
-                detect = def_whisperX()
+                detect = fun_whisperX()
                 # 判斷是否有偵測到 "Hey" 或 "OK" 和 "Whisper"
                 if ('Hey' in detect or 'OK' in detect) and ('Whisper' in detect or 'whisper' in detect):
                     print('哈囉，請說出你想控制什麼裝置?')
                     # 呼叫 def_record() 錄音
-                    def_record(5)
+                    fun_record(5)
                     # 呼叫 def_whisperX() 辨識
-                    text = def_whisperX()
+                    text = fun_whisperX()
                     # 判斷是否有偵測到 "冷氣" 或 "電風扇" 或 "電視" 或 "查詢"
                     if '冷氣' in text or '電風扇' in text or '電視' in text or '查詢' in text:
                         # 呼叫 def_llm() 生成回答
-                        llm_res = def_llm(text)
+                        llm_res = fun_llm(text)
                         # 呼叫 def_tts() 生成音檔
-                        def_tts(llm_res)
+                        fun_tts(llm_res)
                         value={}
                         if "查詢" in text:
                             if "控制" in text:
@@ -179,21 +191,15 @@ if __name__ == '__main__':
                                 value['signal'] = text[-3:-1]
                             elif '確定' in text:
                                 value['signal'] = 'ok'
-                        irremote_url = f"{web_api}/irremote"
-                        log_url = f"{web_api}/log"
-                        body = json.dumps(value)
-                        headers = {"Content-Type": "application/json"}
-                        # irremote_res = requests.post(irremote_url, headers=headers, data=body)
-                        # log_res = requests.post(log_url, headers=headers, data=body)
-                        # print(irremote_res.text)
-                        # print(log_res.text)
+                        # 呼叫 def_irremote() 控制裝置
+                        # fun_irremote(value)
                         print(value)
                         print(text)
                         # 呼叫 def_play_wav() 播放音檔
-                        def_play_wav("SoVITS_LLM.wav")
+                        fun_play_wav("SoVITS_LLM.wav")
                     else:
                         print('抱歉，我聽不懂你的需求')
-                        def_play_wav("sorry.wav")
+                        fun_play_wav("sorry.wav")
             except KeyboardInterrupt:
                 print("Ctrl+C")
                 break
