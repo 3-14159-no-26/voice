@@ -19,4 +19,6 @@ pip install -r requirements.txt
 ```
 
 成員名單
+
+- [唯一](https://github.com/sao-coding)
 - [天幻宇鷹](https://github.com/jodon920502)
