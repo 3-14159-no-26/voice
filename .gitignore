@@ -1,2 +1,3 @@
 .venv
 .sync.env
+.voice.env
