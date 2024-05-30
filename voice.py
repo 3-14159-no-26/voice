@@ -134,6 +134,7 @@ if __name__ == '__main__':
                 # 判斷是否有偵測到 "Hey" 或 "OK" 和 "Whisper"
                 if ('Hey' in detect or 'OK' in detect) and ('Whisper' in detect or 'whisper' in detect):
                     fun_tts("哈囉，請問有什麼需求嗎?")
+                    fun_play_wav("SoVITS_LLM.wav")
                     print('哈囉，請問有什麼需求嗎?')
                     # 呼叫 def_record() 錄音
                     fun_record(5)
