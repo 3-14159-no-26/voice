@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 def fun_play_wav(filename):
     print("播放音檔")
     chunk = 1024
-    audio_path = os.path.join(f"{current_directory}\\assets", filename)
+    audio_path = os.path.join(assert_directory, filename)
     wf = wave.open(audio_path, 'rb')
     p = pyaudio.PyAudio()
     stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
@@ -57,7 +57,7 @@ def fun_record(sec: int):
 def fun_whisperX():
     print("執行 WhisperX")
     print("辨識中...")
-    audio_path = os.path.join(current_directory, "whisperX.wav")
+    audio_path = os.path.join(assert_directory, "whisperX.wav")
     result = modelx.transcribe(audio_path)
     print(f"辨識: \n {result['segments'][0]['text']}")
     return result["segments"][0]["text"]
@@ -65,7 +65,7 @@ def fun_whisperX():
 def fun_llm(messages):
     print("執行 LLM")
     # 讀取 prompt.txt 檔案
-    with open(f"{current_directory}\\assets\\prompt.txt", "r", encoding="utf-8") as f:
+    with open(os.path.join(assert_directory, "prompt.txt"), "r", encoding="utf-8") as f:
         prompt = f.read()
     history = [
         {
@@ -89,7 +89,7 @@ def fun_tts(text):
     url = f"{tts_api}/?refer_wav_path={refer_wav_path}&prompt_text={prompt_text}&prompt_language={prompt_language}&text={text}&text_language={text_language}"
     response = requests.get(url)
     # response輸出為音檔
-    with open("SoVITS_LLM.wav", "wb") as f:
+    with open(os.path.join(assert_directory, "SoVITS_LLM.wav"), "wb") as f:
         f.write(response.content)
 
 def fun_irremote(value):
@@ -117,7 +117,7 @@ if __name__ == '__main__':
         tts_text = os.getenv("TTS_TEXT")
 
         # 取得當前目錄
-        current_directory = os.path.dirname(os.path.abspath(__file__))
+        assert_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
         # 初始化 LLM
         client = OpenAI(base_url=groq_api_url, api_key=groq_api_key)
