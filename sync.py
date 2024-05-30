@@ -6,7 +6,7 @@ import time
 from dotenv import load_dotenv
 import os
 
-# Path: .sync.env
+# 載入環境變數
 load_dotenv(".sync.env")
 host = os.getenv("HOST")
 user = os.getenv("USER")
