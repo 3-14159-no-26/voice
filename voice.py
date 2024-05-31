@@ -133,7 +133,9 @@ if __name__ == '__main__':
                 detect = fun_whisperX()
                 # 判斷是否有偵測到 "Hey" 或 "OK" 和 "Whisper"
                 if ('Hey' in detect or 'OK' in detect) and ('Whisper' in detect or 'whisper' in detect):
-                    print('哈囉，請說出你想控制什麼裝置?')
+                    fun_tts("哈囉，請問有什麼需求嗎?")
+                    fun_play_wav("SoVITS_LLM.wav")
+                    print('哈囉，請問有什麼需求嗎?')
                     # 呼叫 def_record() 錄音
                     fun_record(5)
                     # 呼叫 def_whisperX() 辨識
