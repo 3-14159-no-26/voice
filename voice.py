@@ -208,9 +208,9 @@ if __name__ == '__main__':
                 print("未檢測到語音")
     except Exception as e:
         print(f"初始化時發生錯誤: {e}")
-    # finally:
-    #     # 刪除模型
-    #     del modelx
-    #     # 釋放記憶體
-    #     gc.collect()
-    #     print("程式結束")
+    finally:
+        # 刪除模型
+        del modelx
+        # 釋放記憶體
+        gc.collect()
+        print("程式結束")
