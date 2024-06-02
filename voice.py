@@ -129,7 +129,7 @@ if __name__ == '__main__':
         client = OpenAI(base_url=groq_api_url, api_key=groq_api_key)
         # 載入模型 (WhisperX)
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        modelx = whisperx.load_model(wihisperx_model, device, compute_type="int8" if device == "cpu" else None)
+        modelx = whisperx.load_model(wihisperx_model, device, compute_type="int8" if device == "cpu" else "float32")
 
         while True:
             try:
