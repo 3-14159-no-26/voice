@@ -34,6 +34,7 @@ def fun_record(sec: int):
     fs = 44100# 取樣頻率，常見值為 44100 ( CD )、48000 ( DVD )、22050、24000、12000 和 11025。
     seconds = sec                    # 錄音秒數
     filename = "whisperX.wav"            # 錄音檔名
+    audio_path = os.path.join(assert_directory, filename)
     p = pyaudio.PyAudio()            # 建立 pyaudio 物件
     print("開始錄音...")
     stream = p.open(format=sample_format, channels=channels,rate=fs, frames_per_buffer=chunk, input=True)
@@ -45,7 +46,7 @@ def fun_record(sec: int):
     stream.close()                   # 停止錄音
     p.terminate()                    # 關閉串流
     print('錄音結束...')
-    wf = wave.open(filename, 'wb')   # 開啟聲音記錄檔
+    wf = wave.open(audio_path, 'wb')   # 開啟聲音記錄檔
     wf.setnchannels(channels)        # 設定聲道
     wf.setsampwidth(p.get_sample_size(sample_format))  # 設定格式
     wf.setframerate(fs)              # 設定取樣頻率
