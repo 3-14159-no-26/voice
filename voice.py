@@ -58,7 +58,8 @@ def fun_whisperX():
     audio_path = os.path.join(assert_directory, "whisperX.wav")
     result = modelx.transcribe(audio_path)
     print(f"辨識: \n {result['segments'][0]['text']}")
-    return result["segments"][0]["text"]
+    # 把辨識結果轉換成小寫
+    return result['segments'][0]['text'].lower()
 
 def fun_llm(messages):
     print("執行 LLM")
@@ -114,14 +115,20 @@ if __name__ == '__main__':
         tts_path = os.getenv("TTS_PATH")
         tts_text = os.getenv("TTS_TEXT")
 
+        if not all([groq_api_url, groq_api_key, wihisperx_model, web_api, tts_api, tts_path, tts_text]):
+            raise Exception("環境變數未設定完全")
+        else:
+            print("環境變數設定完成")
+
         # 取得當前目錄
         assert_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+        print("當前目錄: ", assert_directory)
 
         # 初始化 LLM
         client = OpenAI(base_url=groq_api_url, api_key=groq_api_key)
         # 載入模型 (WhisperX)
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        modelx = whisperx.load_model(wihisperx_model, device, compute_type="int8" if device == "cpu" else None)
+        modelx = whisperx.load_model(wihisperx_model, device, compute_type="int8" if device == "cpu" else "float32")
 
         while True:
             try:
@@ -130,7 +137,7 @@ if __name__ == '__main__':
                 # 呼叫 def_whisperX() 辨識
                 detect = fun_whisperX()
                 # 判斷是否有偵測到 "Hey" 或 "OK" 和 "Whisper"
-                if ('Hey' in detect or 'OK' in detect) and ('Whisper' in detect or 'whisper' in detect):
+                if ('hey' in detect or 'ok' in detect) and ('whisper' in detect):
                     fun_play_wav("hello.wav")
                     print('哈囉，請問有什麼需求嗎?')
                     # 播放提示音
