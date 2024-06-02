@@ -116,8 +116,14 @@ if __name__ == '__main__':
         tts_path = os.getenv("TTS_PATH")
         tts_text = os.getenv("TTS_TEXT")
 
+        if not all([groq_api_url, groq_api_key, wihisperx_model, web_api, tts_api, tts_path, tts_text]):
+            raise Exception("環境變數未設定完全")
+        else:
+            print("環境變數設定完成")
+
         # 取得當前目錄
         assert_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
+        print("當前目錄: ", assert_directory)
 
         # 初始化 LLM
         client = OpenAI(base_url=groq_api_url, api_key=groq_api_key)
