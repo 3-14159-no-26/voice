@@ -60,7 +60,8 @@ def fun_whisperX():
     audio_path = os.path.join(assert_directory, "whisperX.wav")
     result = modelx.transcribe(audio_path)
     print(f"辨識: \n {result['segments'][0]['text']}")
-    return result["segments"][0]["text"]
+    # 把辨識結果轉換成小寫
+    return result['segments'][0]['text'].lower()
 
 def fun_llm(messages):
     print("執行 LLM")
@@ -138,7 +139,7 @@ if __name__ == '__main__':
                 # 呼叫 def_whisperX() 辨識
                 detect = fun_whisperX()
                 # 判斷是否有偵測到 "Hey" 或 "OK" 和 "Whisper"
-                if ('Hey' in detect or 'OK' in detect) and ('Whisper' in detect or 'whisper' in detect):
+                if ('hey' in detect or 'ok' in detect) and ('whisper' in detect):
                     fun_tts("哈囉，請問有什麼需求嗎?")
                     fun_play_wav("SoVITS_LLM.wav")
                     print('哈囉，請問有什麼需求嗎?')
