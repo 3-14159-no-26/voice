@@ -35,8 +35,6 @@ def fun_record(sec: int):
     seconds = sec                    # 錄音秒數
     filename = "whisperX.wav"            # 錄音檔名
     p = pyaudio.PyAudio()            # 建立 pyaudio 物件
-    # 播放提示音
-    fun_play_wav("提示音.wav")
     print("開始錄音...")
     stream = p.open(format=sample_format, channels=channels,rate=fs, frames_per_buffer=chunk, input=True)
     frames = []                      # 建立聲音串列
@@ -140,9 +138,10 @@ if __name__ == '__main__':
                 detect = fun_whisperX()
                 # 判斷是否有偵測到 "Hey" 或 "OK" 和 "Whisper"
                 if ('hey' in detect or 'ok' in detect) and ('whisper' in detect):
-                    fun_tts("哈囉，請問有什麼需求嗎?")
-                    fun_play_wav("SoVITS_LLM.wav")
+                    fun_play_wav("hello.wav")
                     print('哈囉，請問有什麼需求嗎?')
+                    # 播放提示音
+                    fun_play_wav("提示音.wav")
                     # 呼叫 def_record() 錄音
                     fun_record(5)
                     # 呼叫 def_whisperX() 辨識
